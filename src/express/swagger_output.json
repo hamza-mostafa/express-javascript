@@ -1,0 +1,408 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "REST API",
+    "description": "This sample project is managing gateways - master devices that control multiple peripheral devices.\n\n REST service (JSON/HTTP) for storing information about these gateways and their associated devices. This information is in the docker mongodb database.\n  all fields are validated.\n\n Also, no more that 10 peripheral devices are allowed for a gateway checked before entry \n\n\n\n------ \n Due to the fact that each gateway has only 10 device no other model for peripherals was created, if required, kindly inform and I'll update the code accordingly"
+  },
+  "host": "localhost:3000",
+  "basePath": "/api/v1-0-0",
+  "tags": [
+    {
+      "name": "gateway",
+      "description": "main gateway"
+    },
+    {
+      "name": "peripheral",
+      "description": " attached devices -- max:10"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/gateway/": {
+      "get": {
+        "tags": [
+          "gateway"
+        ],
+        "description": "fetch all gateways with its data",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully Peripheral Retrieved",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Gateway"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "description": "creates new gateway",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "serialNumber": {
+                  "type": "string",
+                  "example": "Sa-1639347606029"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "gateway-x9"
+                },
+                "IP": {
+                  "type": "string",
+                  "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}$",
+                  "example": "255.255.255.1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Gateway Created",
+            "schema": {
+              "$ref": "#/definitions/Gateway"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/gateway/{serialNumber}": {
+      "get": {
+        "tags": [
+          "gateway"
+        ],
+        "description": "fetches the gateway by serial number",
+        "parameters": [
+          {
+            "name": "serialNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Gateways Retrieved",
+            "schema": {
+              "$ref": "#/definitions/Gateway"
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "gateway"
+        ],
+        "description": "updates the gateway based on serial number",
+        "parameters": [
+          {
+            "name": "serialNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "gateway-x9"
+                },
+                "IP": {
+                  "type": "string",
+                  "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}$",
+                  "example": "255.255.255.1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Gateways Updated",
+            "schema": {
+              "$ref": "#/definitions/Gateway"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "gateway"
+        ],
+        "description": "deletes the gateway based on serial number",
+        "parameters": [
+          {
+            "name": "serialNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/peripheral/gateway/{serialNumber}": {
+      "post": {
+        "tags": [
+          "peripheral"
+        ],
+        "description": "creates a new peripheral and attaches to gateway",
+        "parameters": [
+          {
+            "name": "serialNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "vendor": {
+                  "type": "string",
+                  "required": true,
+                  "example": "cisco"
+                },
+                "status": {
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully Peripheral Created and added to Gateway",
+            "schema": {
+              "$ref": "#/definitions/Gateway"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/peripheral/{id}/gateway/{serialNumber}/": {
+      "get": {
+        "tags": [
+          "peripheral"
+        ],
+        "description": "fetches peripheral data in gateway",
+        "parameters": [
+          {
+            "name": "serialNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Gateway"
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "peripheral"
+        ],
+        "description": "updates peripheral data in gateway",
+        "parameters": [
+          {
+            "name": "serialNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "vendor": {
+                  "type": "string",
+                  "example": "cisco"
+                },
+                "status": {
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Gateway"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "peripheral"
+        ],
+        "description": "deletes peripheral and updates gateway",
+        "parameters": [
+          {
+            "name": "serialNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Peripheral": {
+      "type": "object",
+      "required": [
+        "vendor"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "-----> UUID v4",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "minLength": 36,
+          "maxLength": 36,
+          "example": "b681ecec-df41-4943-8023-d8eef235a668"
+        },
+        "vendor": {
+          "type": "string",
+          "example": "cisco"
+        },
+        "dateCreated": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1639347606029,
+          "pattern": "[0-9]+"
+        },
+        "status": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Gateway": {
+      "type": "object",
+      "required": [
+        "serialNumber",
+        "IP",
+        "name"
+      ],
+      "properties": {
+        "serialNumber": {
+          "type": "string",
+          "example": "Sa-1639347606029"
+        },
+        "name": {
+          "type": "string",
+          "example": "gateway-x9"
+        },
+        "IP": {
+          "type": "string",
+          "pattern": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)(\\.(?!$)|$)){4}$",
+          "example": "255.255.255.1"
+        },
+        "peripherals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Peripheral"
+          }
+        }
+      }
+    }
+  }
+}

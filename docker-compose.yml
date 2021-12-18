@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  expressjs:
+    build:
+      context: ./src/express
+      dockerfile: ../../docker/backend/Dockerfile
+    container_name: backend-${env}
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT}:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=mongodb
+      - DB_PORT=${DB_PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost" ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+
+  #=====================================================================#
+
+  testing:
+    build:
+      context: ./src/express
+      dockerfile: ../../docker/backend/testingDockerefile
+    container_name: backend-testing
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=mongodb
+      - DB_PORT=${DB_PORT}
+      - TEST_MONGODB_NAME=${TEST_MONGODB_NAME}
+
+  #=====================================================================#
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-${env}
+    ports:
+      - "${DB_PORT}:27017"
+    volumes:
+      - mongo:/data/db
+    restart: always
+
+  #=====================================================================#
+
+volumes:
+  mongo:
+
