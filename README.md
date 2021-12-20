@@ -41,4 +41,3 @@ sh stop.sh
 and hence no use of doing a relation similar to the relations databases 
 one-to-many and use the benefits of document database.
  - Peripherals UID has been intentionally made to uuid`string`, as to make sure it is unique.
- - React is still in process, if required as it has been mentioned `recommended` but not required, kindly give time after this weekend.
